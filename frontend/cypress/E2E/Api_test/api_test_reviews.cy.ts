@@ -10,7 +10,7 @@ describe('API get review', () => {
             token = response.body.token;
         });
     });
-it('should fetch the user reviews', () => {
+    it('should fetch the user reviews', () => {
         cy.request({
             method: 'GET',
             url: 'http://localhost:8081/reviews',
@@ -40,7 +40,7 @@ describe('API post review', () => {
             url: 'http://localhost:8081/reviews',
             headers: { Authorization: `Bearer ${token}` },
             body: {
-                title: 'Super produit',
+                title: 'je suis une truite',
                 comment: 'Très bon savon, je recommande.',
                 rating: 5
             }
@@ -50,5 +50,20 @@ describe('API post review', () => {
             expect(res.body).to.be.an('object');
         });
     });
-
+    it('should perform an XSS test', () => {
+        cy.request({
+            method: 'POST',
+            url: 'http://localhost:8081/reviews',
+            headers: { Authorization: `Bearer ${token}` },
+            body: {
+                title: 'Super produit',
+                comment: '<script>alert("XSS")</script>',
+                rating: 5
+            }
+        }).then((res) => {
+            cy.log(JSON.stringify(res.body));
+            expect(res.status).to.eq(200);
+            expect(res.body).to.be.an('object');
+        });
+    });
 });

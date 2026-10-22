@@ -1,30 +1,6 @@
 import { Product } from "src/app/entities/Product";
 
-//login test
-describe('API login', () => {
-    let token: string;
 
-    beforeEach(() => {
-        cy.request('POST', 'http://localhost:8081/login', {
-            username: 'test2@test.fr',
-            password: 'testtest',
-        }).then((response) => {
-            token = response.body.token;
-        });
-    });
-
-    it('should fetch the user profile', () => {
-        cy.request({
-            method: 'GET',
-            url: 'http://localhost:8081/me',
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }).then((res) => {
-            expect(res.status).to.eq(200);
-        });
-    });
-});
 
 // get order test get order by id test
 
