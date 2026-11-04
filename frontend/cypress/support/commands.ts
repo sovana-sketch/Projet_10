@@ -35,3 +35,23 @@
 //     }
 //   }
 // }
+
+Cypress.Commands.add('login', () => {
+cy.fixture('user').then((user) => {
+cy.visit('http://localhost:4200/#/login');
+cy.get('[data-cy="login-input-username"]').type(user.username);
+cy.get('[data-cy="login-input-password"]').type(user.password);
+cy.get('[data-cy="login-submit"]').click();
+cy.get('[data-cy="nav-link-logout"]').should('be.visible');
+});
+});
+
+declare global {
+namespace Cypress {
+interface Chainable {
+login(): Chainable<void>;
+}
+}
+}
+
+export {};
