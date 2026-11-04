@@ -1,9 +1,6 @@
 describe('Panier', () => {
 beforeEach(() => {
-cy.visit('http://localhost:4200/#/login');
-cy.get('[data-cy="login-input-username"]').type('test2@test.fr');
-cy.get('[data-cy="login-input-password"]').type('testtest');
-cy.get('[data-cy="login-submit"]').click();
+cy.login();
 cy.get('[data-cy="nav-link-logout"]', { timeout: 10000 }).should('be.visible');
 
 cy.intercept('GET', /\/products\/\d+$/).as('getProduct');

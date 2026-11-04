@@ -1,10 +1,8 @@
 describe('Login with valid credentials', () => {
  
-    it('should show logout and add-to-cart buttons when logged in', () => {
-        cy.visit('http://localhost:4200/#/login');
-        cy.get('[data-cy="login-input-username"]').type('test2@test.fr');
-        cy.get('[data-cy="login-input-password"]').type('testtest');
-        cy.get('[data-cy="login-submit"]').click();
+    it('should show the logout button when logged in', () => {
+       cy.login();
+        
   });
 });
 
@@ -97,7 +95,7 @@ describe('Login with space valid email and space password', () => {
     });
 });
 
-describe('Login with hidden password', () => {
+describe('should hide the password field', () => {
     it('should show an error message when logging in with hidden password', () => {
         cy.visit('http://localhost:4200/#/login');
         cy.get('[data-cy="login-input-username"]').type('test2@test.fr');

@@ -56,8 +56,8 @@ describe('API post review', () => {
             url: 'http://localhost:8081/reviews',
             headers: { Authorization: `Bearer ${token}` },
             body: {
-                title: 'Super produit',
-                comment: '<script>alert("XSS")</script>',
+                title: 'Super produit XSS',
+                comment: '<img src=x onerror=alert("XSS")>',
                 rating: 5
             }
         }).then((res) => {

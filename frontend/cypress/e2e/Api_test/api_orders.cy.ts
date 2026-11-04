@@ -79,17 +79,17 @@ describe('API put order by id', () => {
             orderLineId = line.id;
 
             cy.request({
-            method: 'GET',
-            url: 'http://localhost:8081/orders',
-            headers: { Authorization: `Bearer ${token}` },
-        }).then((resGet) => {
-            expect(resGet.status).to.eq(200);
-            expect(resGet.body.orderLines).to.be.an('array');
-            expect(resGet.body.orderLines[0].product.id).to.eq(productId);
-        });
+                method: 'GET',
+                url: 'http://localhost:8081/orders',
+                headers: { Authorization: `Bearer ${token}` },
+            }).then((resGet) => {
+                expect(resGet.status).to.eq(200);
+                expect(resGet.body.orderLines).to.be.an('array');
+                expect(resGet.body.orderLines[0].product.id).to.eq(productId);
+            });
         });
     });
-    
+
 
     afterEach(() => {
         cy.request({
@@ -168,4 +168,67 @@ describe('API change quantity', () => {
             headers: { Authorization: `Bearer ${token}` },
         });
     });
+});
+
+describe('API get orders without login', () => {
+    it('should refuse access to the cart when not logged in', () => {
+        cy.request({
+            method: 'GET',
+            url: 'http://localhost:8081/orders',
+            failOnStatusCode: false,
+        }).then((res) => {
+            cy.log(JSON.stringify(res.body));
+            expect(res.status).to.eq(401);
+        });
+    });
+});
+
+describe('API create order', () => {
+let token: string;
+let productId: number;
+
+beforeEach(() => {
+cy.request('POST', 'http://localhost:8081/login', {
+username: 'test2@test.fr',
+password: 'testtest',
+}).then((response) => {
+token = response.body.token;
+
+cy.request('GET', 'http://localhost:8081/products/random')
+.then((res) => {
+expect(res.status).to.eq(200);
+expect(res.body).to.be.an('array');
+productId = res.body[0].id;
+
+cy.request({
+method: 'PUT',
+url: 'http://localhost:8081/orders/add',
+headers: { Authorization: `Bearer ${token}` },
+body: { product: productId, quantity: 1 },
+}).then((resAdd) => {
+expect(resAdd.status).to.eq(200);
+});
+});
+});
+});
+
+it('should create a new order', () => {
+cy.request({
+method: 'POST',
+url: 'http://localhost:8081/orders',
+headers: { Authorization: `Bearer ${token}` },
+body: {
+firstname: 'Jane',
+lastname: 'Doe',
+address: '12 rue des Lilas',
+zipCode: '33000',
+city: 'Bordeaux',
+},
+}).then((res) => {
+cy.log(JSON.stringify(res.body));
+expect(res.status).to.eq(200);
+expect(res.body.orderLines[0].product.id).to.eq(productId);
+expect(res.body.orderLines[0].quantity).to.eq(1);
+});
+});
 });
