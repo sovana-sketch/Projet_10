@@ -1,4 +1,4 @@
-describe('API Tests', () => {
+describe('API Tests products', () => {
   it('should fetch data from the API', () => {
     cy.request('GET', 'http://localhost:8081/products')
       .then((response) => {
@@ -8,7 +8,7 @@ describe('API Tests', () => {
   });
 });
 
-describe('API Tests', () => {
+describe('API Tests product random', () => {
   it('should fetch data from the API', () => {
     cy.request('GET', 'http://localhost:8081/products/random')
       .then((response) => {
