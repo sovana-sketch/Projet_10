@@ -1,44 +1,5 @@
 import { Product } from "src/app/entities/Product";
 
-
-
-// get order test get order by id test
-
-// describe('API get order', () => {
-//     let token: string;
-
-//     beforeEach(() => {
-//         cy.request('POST', 'http://localhost:8081/login', {
-//             username: 'test2@test.fr',
-//             password: 'testtest',
-//         }).then((response) => {
-//             token = response.body.token;
-//         });
-//     });
-
-//     it('should fetch the user profile', () => {
-//         cy.request({
-//             method: 'GET',
-//             url: 'http://localhost:8081/orders',
-//             headers: {
-//                 Authorization: `Bearer ${token}`,
-//             },
-//             body: {
-//                 "firstname": "string",
-//                 "lastname": "string",
-//             }
-//         }).then((res) => {
-//             cy.log(JSON.stringify(res.body))
-//             expect(res.status).to.eq(200);
-//             expect(res.body).to.be.an('object');
-//             expect(res.body.orderLines).to.be.an('array')
-
-//         });
-//     });
-// });
-
-//put order test put order  test
-
 describe('API put order by id', () => {
     let token: string;
     let productId: number;
