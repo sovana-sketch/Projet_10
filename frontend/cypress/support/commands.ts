@@ -46,10 +46,24 @@ cy.get('[data-cy="nav-link-logout"]').should('be.visible');
 });
 });
 
+// Connexion API : récupère le token avec les identifiants de la fixture user
+Cypress.Commands.add('apiLogin', () => {
+return cy.fixture('user').then((user) => {
+return cy.request('POST', 'http://localhost:8081/login', {
+username: user.username,
+password: user.password,
+}).then((response) => {
+expect(response.status).to.eq(200);
+return response.body.token as string;
+});
+});
+});
+
 declare global {
 namespace Cypress {
 interface Chainable {
 login(): Chainable<void>;
+apiLogin(): Chainable<string>;
 }
 }
 }

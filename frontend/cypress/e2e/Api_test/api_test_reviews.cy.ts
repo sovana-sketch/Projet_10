@@ -3,11 +3,8 @@ describe('API get review', () => {
     let token: string;
 
     beforeEach(() => {
-        cy.request('POST', 'http://localhost:8081/login', {
-            username: 'test2@test.fr',
-            password: 'testtest',
-        }).then((response) => {
-            token = response.body.token;
+        cy.apiLogin().then((t) => {
+            token = t;
         });
     });
     it('should fetch the user reviews', () => {
@@ -27,11 +24,8 @@ describe('API get review', () => {
 describe('API post review', () => {
     let token: string;
     beforeEach(() => {
-        cy.request('POST', 'http://localhost:8081/login', {
-            username: 'test2@test.fr',
-            password: 'testtest',
-        }).then((response) => {
-            token = response.body.token;
+        cy.apiLogin().then((t) => {
+            token = t;
         });
     });
     it('should create a new review', () => {
@@ -50,20 +44,29 @@ describe('API post review', () => {
             expect(res.body).to.be.an('object');
         });
     });
-    it('should perform an XSS test', () => {
+    it('should not return the XSS payload intact in the comment (anomalie connue)', () => {
+        const xssPayload = '<img src=x onerror=alert("XSS")>';
+
         cy.request({
             method: 'POST',
             url: 'http://localhost:8081/reviews',
             headers: { Authorization: `Bearer ${token}` },
             body: {
                 title: 'Super produit XSS',
-                comment: '<img src=x onerror=alert("XSS")>',
+                comment: xssPayload,
                 rating: 5
             }
         }).then((res) => {
             cy.log(JSON.stringify(res.body));
             expect(res.status).to.eq(200);
             expect(res.body).to.be.an('object');
+            expect(res.body).to.have.property('comment');
+
+            // On vérifie le champ lui-même : JSON.stringify échappe les guillemets,
+            // un test sur le corps sérialisé passerait à tort.
+            const comment: string = res.body.comment;
+            expect(comment).to.not.eq(xssPayload);
+            expect(comment).to.not.include('<img');
         });
     });
 });

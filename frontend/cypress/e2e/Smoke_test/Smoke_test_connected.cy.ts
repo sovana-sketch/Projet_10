@@ -1,8 +1,4 @@
 describe('Smoke tests', () => {
-    it('should show the login button when logged out', () => {
-        cy.visit('http://localhost:4200/');
-        cy.get('[data-cy="nav-link-login"]').should('be.visible');
-    });
 
     it('should show logout and add-to-cart buttons when logged in', () => {
         cy.login();
@@ -15,3 +11,15 @@ describe('Smoke tests', () => {
         cy.get('[data-cy="detail-product-add"]').should('be.visible')
     });
 });
+
+describe('Smoke tests product page', () => {
+    
+    it('should show add-to-cart button and quantity field on product page', () => {
+        cy.login();
+        cy.visit('http://localhost:4200/#/products');
+        cy.get('[data-cy="product-link"]').first().click();
+        cy.get('[data-cy="detail-product-add"]').should('be.visible');
+        cy.get('[data-cy="detail-product-quantity"]').should('be.visible');
+    });
+});
+

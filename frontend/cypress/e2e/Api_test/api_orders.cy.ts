@@ -6,11 +6,8 @@ describe('API put order by id', () => {
     let orderLineId: number;
 
     beforeEach(() => {
-        cy.request('POST', 'http://localhost:8081/login', {
-            username: 'test2@test.fr',
-            password: 'testtest',
-        }).then((response) => {
-            token = response.body.token;
+        cy.apiLogin().then((t) => {
+            token = t;
         });
         cy.request('GET', 'http://localhost:8081/products/random')
             .then((res) => {
@@ -78,11 +75,8 @@ describe('API change quantity', () => {
     let orderLineId: number;
 
     beforeEach(() => {
-        cy.request('POST', 'http://localhost:8081/login', {
-            username: 'test2@test.fr',
-            password: 'testtest',
-        }).then((response) => {
-            token = response.body.token;
+        cy.apiLogin().then((t) => {
+            token = t;
 
             cy.request('GET', 'http://localhost:8081/products/random')
                 .then((res) => {
@@ -149,11 +143,8 @@ let token: string;
 let productId: number;
 
 beforeEach(() => {
-cy.request('POST', 'http://localhost:8081/login', {
-username: 'test2@test.fr',
-password: 'testtest',
-}).then((response) => {
-token = response.body.token;
+cy.apiLogin().then((t) => {
+token = t;
 
 cy.request('GET', 'http://localhost:8081/products/random')
 .then((res) => {
@@ -192,4 +183,92 @@ expect(res.body.orderLines[0].product.id).to.eq(productId);
 expect(res.body.orderLines[0].quantity).to.eq(1);
 });
 });
+});
+
+
+describe('API commande avec une quantité à zéro', () => {
+    let token: string;
+    let productId: number;
+
+    beforeEach(() => {
+        cy.apiLogin().then((t) => {
+            token = t;
+
+            cy.request('GET', 'http://localhost:8081/products/random').then((res) => {
+                expect(res.status).to.eq(200);
+                productId = res.body[0].id;
+
+                cy.request({
+                    method: 'PUT',
+                    url: 'http://localhost:8081/orders/add',
+                    headers: { Authorization: `Bearer ${token}` },
+                    body: { product: productId, quantity: 0 },
+                    failOnStatusCode: false,
+                });
+            });
+        });
+    });
+
+    it('should refuse an order with no quantity(anomaly known)', () => {
+        cy.request({
+            method: 'POST',
+            url: 'http://localhost:8081/orders',
+            headers: { Authorization: `Bearer ${token}` },
+            body: {
+                firstname: 'Jane',
+                lastname: 'Doe',
+                address: '12 rue des Lilas',
+                zipCode: '33000',
+                city: 'Bordeaux',
+            },
+            failOnStatusCode: false,
+        }).then((res) => {
+            cy.log(JSON.stringify(res.body));
+            expect(res.status).to.not.eq(200);
+        });
+    });
+});
+
+describe('API commande avec injection XSS dans le prénom', () => {
+    let token: string;
+    const xssPayload = '<img src=x onerror=alert(1)>';
+
+    beforeEach(() => {
+        cy.apiLogin().then((t) => {
+            token = t;
+
+            cy.request('GET', 'http://localhost:8081/products/random').then((res) => {
+                expect(res.status).to.eq(200);
+                const productId = res.body[0].id;
+
+                cy.request({
+                    method: 'PUT',
+                    url: 'http://localhost:8081/orders/add',
+                    headers: { Authorization: `Bearer ${token}` },
+                    body: { product: productId, quantity: 1 },
+                }).then((resAdd) => {
+                    expect(resAdd.status).to.eq(200);
+                });
+            });
+        });
+    });
+
+    it('should not return the XSS payload intact in the firstname (anomalie connue)', () => {
+        cy.request({
+            method: 'POST',
+            url: 'http://localhost:8081/orders',
+            headers: { Authorization: `Bearer ${token}` },
+            body: {
+                firstname: xssPayload,
+                lastname: 'Doe',
+                address: '12 rue des Lilas',
+                zipCode: '33000',
+                city: 'Bordeaux',
+            },
+            failOnStatusCode: false,
+        }).then((res) => {
+            cy.log(JSON.stringify(res.body));
+            expect(JSON.stringify(res.body)).to.not.include(xssPayload);
+        });
+    });
 });

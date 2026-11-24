@@ -27,11 +27,8 @@ describe('API get user info', () => {
     let token: string;
 
     beforeEach(() => {
-        cy.request('POST', 'http://localhost:8081/login', {
-            username: 'test2@test.fr',
-            password: 'testtest',
-        }).then((response) => {
-            token = response.body.token;
+        cy.apiLogin().then((t) => {
+            token = t;
         });
     });
     it('should fetch the user info', () => {
@@ -43,6 +40,33 @@ describe('API get user info', () => {
             cy.log(JSON.stringify(res.body));
             expect(res.status).to.eq(200);
             expect(res.body).to.be.an('object');
+        });
+    });
+});
+
+describe('trying API user info without login', () => {
+    it('should refuse access to user info when not logged in', () => {
+        cy.request({
+            method: 'GET',
+            url: 'http://localhost:8081/me',
+            failOnStatusCode: false,
+        }).then((res) => {
+            cy.log(JSON.stringify(res.body));
+            expect(res.status).to.eq(401);
+        });
+    });
+});
+
+describe('trying API  user info with wrong bearer token', () => {
+    it('should refuse access to user info when using a wrong bearer token', () => {
+        cy.request({
+            method: 'GET',
+            url: 'http://localhost:8081/me',
+            headers: { Authorization: 'Bearer invalid_token' },
+            failOnStatusCode: false,
+        }).then((res) => {
+            cy.log(JSON.stringify(res.body));
+            expect(res.status).to.eq(401);
         });
     });
 });
