@@ -45,7 +45,7 @@ describe('API get user info', () => {
 });
 
 describe('trying API user info without login', () => {
-    it('should refuse access to user info when not logged in', () => {
+    it('should refuse access to user info when not logged in(anomalie connue)', () => {
         cy.request({
             method: 'GET',
             url: 'http://localhost:8081/me',

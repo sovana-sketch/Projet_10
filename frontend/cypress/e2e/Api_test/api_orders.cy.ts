@@ -1,5 +1,3 @@
-import { Product } from "src/app/entities/Product";
-
 describe('API put order by id', () => {
     let token: string;
     let productId: number;
@@ -209,7 +207,7 @@ describe('API commande avec une quantité à zéro', () => {
         });
     });
 
-    it('should refuse an order with no quantity(anomaly known)', () => {
+    it('should refuse an order with no quantity(anomalie connue)', () => {
         cy.request({
             method: 'POST',
             url: 'http://localhost:8081/orders',
